@@ -1,0 +1,14 @@
+CREATE TABLE inaf_distributor.dateCalibCheck (
+id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+filename VARCHAR(255) NOT NULL,
+filepath VARCHAR(255) NOT NULL,
+instrument VARCHAR(24) NOT NULL,
+propid VARCHAR(128) NOT NULL,
+piname VARCHAR(128) NOT NULL,
+partner VARCHAR(128) NOT NULL,
+date_obs VARCHAR(32) NOT NULL,
+object VARCHAR(128) NOT NULL,
+destination VARCHAR(30) NOT NULL,
+checksum VARCHAR(60) NOT NULL,
+transferDate TIMESTAMP default CURRENT_TIMESTAMP
+);

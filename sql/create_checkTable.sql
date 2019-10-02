@@ -1,9 +1,0 @@
-CREATE TABLE inaf_distributor.sftpCheck (
-id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-filename VARCHAR(30) NOT NULL,
-filepath VARCHAR(90) NOT NULL,
-propid VARCHAR(30) NOT NULL,
-destination VARCHAR(30) NOT NULL,
-checksum VARCHAR(60) NOT NULL,
-transferDate TIMESTAMP default CURRENT_TIMESTAMP 
-);
