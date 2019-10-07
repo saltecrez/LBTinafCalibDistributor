@@ -16,6 +16,7 @@ import os
 import MySQLdb
 from astropy.io import fits
 from sftpRemote import sftpRemote
+from singleNight import singleNight
 from scpRemote import scpRemote
 from md5Checksum import md5Checksum
 from readTools import readCSV,readJson
@@ -44,12 +45,8 @@ except MySQLdb.Error, e:
 
 for x in cur1.fetchall():
     for i in datelist:
-        s_int = datetime.strptime(i[0], "%Y-%m-%dT%H:%M:%S.%f")
-	e_int = s_int + timedelta(1) 
-	start = datetime.strftime(s_int, '%Y-%m-%dT%H:%M:%S.%f')
-	end = datetime.strftime(e_int, '%Y-%m-%dT%H:%M:%S.%f')
-        if end >= x[6] >= start:
-
+	totrans = singleNight(i[0],x[6],logfile)
+	if (totrans):
             version = x[1]
             storage_path = storagePathConstructor(cur1,version,'luci',x[0],logfile)
             filepath = storage_path + x[0]
@@ -84,12 +81,8 @@ except MySQLdb.Error, e:
 
 for x in cur1.fetchall():
     for i in datelist:
-	s_int = datetime.strptime(i[0], "%Y-%m-%dT%H:%M:%S.%f")
-	e_int = s_int + timedelta(1)
-	start = datetime.strftime(s_int, '%Y-%m-%dT%H:%M:%S.%f')
-	end = datetime.strftime(e_int, '%Y-%m-%dT%H:%M:%S.%f')
-        if end >= x[6] >= str(start):
-
+	totrans = singleNight(i[0],x[6],logfile)
+	if (totrans):
             version = x[1]
             storage_path = storagePathConstructor(cur1,version,'lbc',x[0],logfile)
             filepath = storage_path + x[0]
@@ -120,12 +113,8 @@ except MySQLdb.Error, e:
 
 for x in cur1.fetchall():
     for i in datelist:
-	s_int = datetime.strptime(i[0], "%Y-%m-%dT%H:%M:%S.%f")
-	e_int = s_int + timedelta(1)
-	start = datetime.strftime(s_int, '%Y-%m-%dT%H:%M:%S.%f')
-	end = datetime.strftime(e_int, '%Y-%m-%dT%H:%M:%S.%f')
-        if end >= x[6] >= str(start):
-
+	totrans = singleNight(i[0],x[6],logfile)
+	if (totrans):
             version = x[1]
             storage_path = storagePathConstructor(cur1,version,'mods',x[0],logfile)
             filepath = storage_path + x[0]
