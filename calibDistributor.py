@@ -44,9 +44,11 @@ except MySQLdb.Error, e:
 
 for x in cur1.fetchall():
     for i in datelist:
-        start = datetime.strptime(i[0], '%Y-%m-%d %H:%M:%S.%f')
-        end = datetime.strftime(start + timedelta(1), '%Y-%m-%d %H:%M:%S.%f')
-        if end > x[6] > str(start):
+        s_int = datetime.strptime(i[0], "%Y-%m-%dT%H:%M:%S.%f")
+	e_int = s_int + timedelta(1) 
+	start = datetime.strftime(s_int, '%Y-%m-%dT%H:%M:%S.%f')
+	end = datetime.strftime(e_int, '%Y-%m-%dT%H:%M:%S.%f')
+        if end >= x[6] >= start:
 
             version = x[1]
             storage_path = storagePathConstructor(cur1,version,'luci',x[0],logfile)
@@ -82,9 +84,11 @@ except MySQLdb.Error, e:
 
 for x in cur1.fetchall():
     for i in datelist:
-        start = datetime.strptime(i[0], '%Y-%m-%d %H:%M:%S.%f')
-        end = datetime.strftime(start + timedelta(1), '%Y-%m-%d %H:%M:%S.%f')
-        if end > x[6] > str(start):
+	s_int = datetime.strptime(i[0], "%Y-%m-%dT%H:%M:%S.%f")
+	e_int = s_int + timedelta(1)
+	start = datetime.strftime(s_int, '%Y-%m-%dT%H:%M:%S.%f')
+	end = datetime.strftime(e_int, '%Y-%m-%dT%H:%M:%S.%f')
+        if end >= x[6] >= str(start):
 
             version = x[1]
             storage_path = storagePathConstructor(cur1,version,'lbc',x[0],logfile)
@@ -116,9 +120,11 @@ except MySQLdb.Error, e:
 
 for x in cur1.fetchall():
     for i in datelist:
-        start = datetime.strptime(i[0], '%Y-%m-%d %H:%M:%S.%f')
-        end = datetime.strftime(start + timedelta(1), '%Y-%m-%d %H:%M:%S.%f')
-        if end > x[6] > str(start):
+	s_int = datetime.strptime(i[0], "%Y-%m-%dT%H:%M:%S.%f")
+	e_int = s_int + timedelta(1)
+	start = datetime.strftime(s_int, '%Y-%m-%dT%H:%M:%S.%f')
+	end = datetime.strftime(e_int, '%Y-%m-%dT%H:%M:%S.%f')
+        if end >= x[6] >= str(start):
 
             version = x[1]
             storage_path = storagePathConstructor(cur1,version,'mods',x[0],logfile)
