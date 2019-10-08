@@ -1,0 +1,48 @@
+{
+   "dates_file": "2019B_INAF_nights.txt",
+   "db_host": "localhost",
+   "db_pwd": "Archa123",
+   "db_user": "archa",
+   "db_schema": "metadata",
+   "db_schema_check": "inaf_distributor",
+   "db_table_check": "dateCalibCheck",
+   "priv_sshkey": "/home/controls/.ssh/old_inaf_keys/id_rsa",
+   "destinations": [
+      {
+         "query": "SELECT file_name,file_version,instrument,propid,piname,partner,date_obs,object FROM luci WHERE obstype='CALIBRATION' or obstype='DARK';",
+         "table": "luci",
+         "dest": "LUCI/",
+         "host": "titan.lambrate.inaf.it",
+         "user": "lbtsync",
+         "label": "MI",
+	 "mode": "scp"
+      },
+      {
+         "query": "SELECT file_name,file_version,instrument,propid,piname,partner,date_obs,object FROM luci WHERE obstype='CALIBRATION' or obstype='DARK';",
+         "table": "luci",
+         "dest": "/data1/datatest/done_2nd/",
+         "host": "lsc.oa-roma.inaf.it",
+         "user": "datatest",
+         "label": "RM",
+	 "mode": "sftp"
+      },
+      {
+         "query": "SELECT file_name,file_version,instrument,propid,piname,partner,date_obs,object FROM lbc WHERE obs_type != 'object';",
+         "table": "lbc",
+         "dest": "/data1/datatest/done_2nd/",
+         "host": "lsc.oa-roma.inaf.it",
+         "user": "datatest",
+         "label": "RM",
+	 "mode": "sftp"
+      },
+      {
+         "query": "SELECT file_name,file_version,instrument,propid,piname,partner,date_obs,object FROM mods WHERE imagetyp != 'OBJECT';",
+         "table": "mods",
+         "dest": "MODS/",
+         "host": "titan.lambrate.inaf.it",
+         "user": "lbtsync",
+         "label": "MI",
+	 "mode": "scp"
+      }
+   ]
+}

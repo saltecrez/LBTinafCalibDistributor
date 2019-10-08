@@ -27,4 +27,3 @@ def sftpRemote(server,username,sshkey,localpath,remotepath,logfile):
             return False
     except Exception as e:
         logfile.write('%s -- Exception: %s \n' % (datetime.now(),e))
-
