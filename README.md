@@ -1,9 +1,9 @@
 # LBTinafCalibDistributor
 
-- **Goal**: distribute files towards different sites based on the queries specified in the conf.json file. Scalable to N destinations. It supports two file transfer modes: scp and sftp. Based on MySQL database.
+- **Goal**: distribute files towards different sites based on the queries specified in the conf.json file and on the telescope operation dates. Scalable to N destinations. It supports two transfer modes: scp and sftp. Based on MySQL database.
 
 
-- **Targets**: Used for the LBT archive, Tucson machine. 
+- **Targets**: Used for the LBT archive, Tucson machine. It can be adapted to other archives. In that case, please modify mysqlTools.mysqlInsert since it is based on LBT metadata.
 
 - **Description**: 
 
@@ -17,6 +17,7 @@
     - "db_schema_check": schema name of the reference database
     - "db_table_check": table name contained in the reference database; table example in sql folder
     - "priv_sshkey": path to the local private key
+    - "instr_mult": maximum multiplicity for the instruments; eg if an instrument file is distribute to 2 destinations, the multiplicity is 2
     - "destination": information characterizing a destination; in particular:
         - "query": query performed on db_schema to select the data to be sent 
         - "table": table in db_schema on which the query is performed
