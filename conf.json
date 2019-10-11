@@ -7,6 +7,7 @@
    "db_schema_check": "inaf_distributor",
    "db_table_check": "dateCalibCheck",
    "priv_sshkey": "/home/controls/.ssh/old_inaf_keys/id_rsa",
+   "instr_mult": "2",
    "destinations": [
       {
          "query": "SELECT file_name,file_version,instrument,propid,piname,partner,date_obs,object FROM luci WHERE date_obs >= %s and obstype='CALIBRATION' or obstype='DARK';",

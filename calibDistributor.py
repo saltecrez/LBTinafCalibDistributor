@@ -34,6 +34,8 @@ cnf = readJson('conf.json',CWD,logfile)
 
 datelist = readCSV(cnf['dates_file'],logfile)
 
+instr_multiplic = cnf['instr_mult']
+
 cur1, db1 = mysqlConnection(cnf['db_host'],cnf['db_user'],cnf['db_pwd'],cnf['db_schema'],logfile)
 cur2, db2 = mysqlConnection(cnf['db_host'],cnf['db_user'],cnf['db_pwd'],cnf['db_schema_check'],logfile)
 
@@ -66,16 +68,17 @@ for i in cnf['destinations']:
 		    logfile.write('%s -- MySQLdb.Error: %s \n' % (datetime.now(),e))
 
 		cksmDB = referenceDB[0][0]; destDB = referenceDB[0][1];
-		if ((not cksmDB) or (cksmDB != cksm_storage) or (cksmDB == cksm_storage and label != destDB)):		
-		    path = dest + x[0]
-		    if mode == 'scp':
-			print label,x[0],mode
-			scpRemote(host,user,cnf['priv_sshkey'],filepath,path,logfile) 
-			mysqlInsert(cnf['db_schema_check'],cnf['db_table_check'],cur2,db2,x[0],filepath,x[2],x[3],x[4],x[5],x[6],x[7],label,cksm_storage,logfile)
-		    elif mode == 'sftp':
-			print label,x[0],mode
-			errcode = sftpRemote(host,user,cnf['priv_sshkey'],filepath,path,logfile)
-			if (errcode):
+
+		if len(referenceDB) < int(instr_multiplic):
+
+                    if ((not cksmDB) or (cksmDB != cksm_storage) or (cksmDB == cksm_storage and label != destDB)):		
+		        path = dest + x[0]
+		        if mode == 'scp':
+			    scpRemote(host,user,cnf['priv_sshkey'],filepath,path,logfile) 
 			    mysqlInsert(cnf['db_schema_check'],cnf['db_table_check'],cur2,db2,x[0],filepath,x[2],x[3],x[4],x[5],x[6],x[7],label,cksm_storage,logfile)
+		        elif mode == 'sftp':
+			    errcode = sftpRemote(host,user,cnf['priv_sshkey'],filepath,path,logfile)
+			    if (errcode):
+			        mysqlInsert(cnf['db_schema_check'],cnf['db_table_check'],cur2,db2,x[0],filepath,x[2],x[3],x[4],x[5],x[6],x[7],label,cksm_storage,logfile)
 
 logfile.close()			
