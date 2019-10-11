@@ -9,7 +9,7 @@
    "priv_sshkey": "/home/controls/.ssh/old_inaf_keys/id_rsa",
    "destinations": [
       {
-         "query": "SELECT file_name,file_version,instrument,propid,piname,partner,date_obs,object FROM luci WHERE obstype='CALIBRATION' or obstype='DARK';",
+         "query": "SELECT file_name,file_version,instrument,propid,piname,partner,date_obs,object FROM luci WHERE date_obs >= %s and obstype='CALIBRATION' or obstype='DARK';",
          "table": "luci",
          "dest": "LUCI/",
          "host": "titan.lambrate.inaf.it",
@@ -18,7 +18,7 @@
 	 "mode": "scp"
       },
       {
-         "query": "SELECT file_name,file_version,instrument,propid,piname,partner,date_obs,object FROM luci WHERE obstype='CALIBRATION' or obstype='DARK';",
+         "query": "SELECT file_name,file_version,instrument,propid,piname,partner,date_obs,object FROM luci WHERE date_obs >= %s and obstype='CALIBRATION' or obstype='DARK';",
          "table": "luci",
          "dest": "/data1/datatest/done_2nd/",
          "host": "lsc.oa-roma.inaf.it",
@@ -27,7 +27,7 @@
 	 "mode": "sftp"
       },
       {
-         "query": "SELECT file_name,file_version,instrument,propid,piname,partner,date_obs,object FROM lbc WHERE obs_type != 'object';",
+         "query": "SELECT file_name,file_version,instrument,propid,piname,partner,date_obs,object FROM lbc WHERE date_obs >= %s and obs_type != 'object';",
          "table": "lbc",
          "dest": "/data1/datatest/done_2nd/",
          "host": "lsc.oa-roma.inaf.it",
@@ -36,7 +36,7 @@
 	 "mode": "sftp"
       },
       {
-         "query": "SELECT file_name,file_version,instrument,propid,piname,partner,date_obs,object FROM mods WHERE imagetyp != 'OBJECT';",
+         "query": "SELECT file_name,file_version,instrument,propid,piname,partner,date_obs,object FROM mods WHERE date_obs >= %s and imagetyp != 'OBJECT';",
          "table": "mods",
          "dest": "MODS/",
          "host": "titan.lambrate.inaf.it",
