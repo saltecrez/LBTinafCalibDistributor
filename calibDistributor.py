@@ -17,12 +17,11 @@ import sys
 import os
 import MySQLdb
 from astropy.io import fits
-from sftpRemote import sftpRemote
 from singleNight import singleNight
-from scpRemote import scpRemote
 from md5Checksum import md5Checksum
 from readTools import readCSV,readJson
 from datetime import date,time,datetime,timedelta
+from transferTools import sftpTransfer,scpTransfer
 from mysqlTools import mysqlConnection,mysqlInsert,storagePathConstructor
 
 
@@ -67,18 +66,38 @@ for i in cnf['destinations']:
 		except MySQLdb.Error, e:
 		    logfile.write('%s -- MySQLdb.Error: %s \n' % (datetime.now(),e))
 
-		cksmDB = referenceDB[0][0]; destDB = referenceDB[0][1];
 
-		if len(referenceDB) < int(instr_multiplic):
+		if not referenceDB:		
+                    path = dest + x[0]
+                    if mode == 'scp':
+                        print label,x[0],mode, "not in reference DB"
+                        returncode = scpTransfer(host,user,cnf['priv_sshkey'],filepath,path,logfile) 
+			print returncode
+			if (returncode):
+                            mysqlInsert(cnf['db_schema_check'],cnf['db_table_check'],cur2,db2,x[0],filepath,x[2],x[3],x[4],x[5],x[6],x[7],label,cksm_storage,logfile)
 
-                    if ((not cksmDB) or (cksmDB != cksm_storage) or (cksmDB == cksm_storage and label != destDB)):		
-		        path = dest + x[0]
-		        if mode == 'scp':
-			    scpRemote(host,user,cnf['priv_sshkey'],filepath,path,logfile) 
-			    mysqlInsert(cnf['db_schema_check'],cnf['db_table_check'],cur2,db2,x[0],filepath,x[2],x[3],x[4],x[5],x[6],x[7],label,cksm_storage,logfile)
-		        elif mode == 'sftp':
-			    errcode = sftpRemote(host,user,cnf['priv_sshkey'],filepath,path,logfile)
-			    if (errcode):
-			        mysqlInsert(cnf['db_schema_check'],cnf['db_table_check'],cur2,db2,x[0],filepath,x[2],x[3],x[4],x[5],x[6],x[7],label,cksm_storage,logfile)
+                    if mode == 'sftp':
+                        print label,x[0],mode,"not in reference DB"
+                        returncode = sftpTransfer(host,user,cnf['priv_sshkey'],filepath,path,logfile)
+                        if (returncode):
+                            mysqlInsert(cnf['db_schema_check'],cnf['db_table_check'],cur2,db2,x[0],filepath,x[2],x[3],x[4],x[5],x[6],x[7],label,cksm_storage,logfile)
+
+		if (referenceDB):
+                    cksmDB = referenceDB[0][0]; destDB = referenceDB[0][1];
+
+                    if len(referenceDB) < int(instr_multiplic):
+
+                        if ((cksmDB != cksm_storage) or (cksmDB == cksm_storage and label != destDB)):		
+		            path = dest + x[0]
+		            if mode == 'scp':
+			        print label,x[0],mode,"already in reference DB"
+			        returncode = scpTransfer(host,user,cnf['priv_sshkey'],filepath,path,logfile) 
+				if (returncode):
+			            mysqlInsert(cnf['db_schema_check'],cnf['db_table_check'],cur2,db2,x[0],filepath,x[2],x[3],x[4],x[5],x[6],x[7],label,cksm_storage,logfile)
+		            elif mode == 'sftp':
+			        print label,x[0],mode,"already in reference DB"
+			        returncode = sftpTransfer(host,user,cnf['priv_sshkey'],filepath,path,logfile)
+			        if (returncode):
+			            mysqlInsert(cnf['db_schema_check'],cnf['db_table_check'],cur2,db2,x[0],filepath,x[2],x[3],x[4],x[5],x[6],x[7],label,cksm_storage,logfile)
 
 logfile.close()			

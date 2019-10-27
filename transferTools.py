@@ -7,10 +7,11 @@ __date__ = "September 2019"
 
 import os
 import paramiko
+from fabric import Connection
 from datetime import datetime
 
 
-def sftpRemote(server,username,sshkey,localpath,remotepath,logfile):
+def sftpTransfer(server,username,sshkey,localpath,remotepath,logfile):
     try:
         client = paramiko.SSHClient()
         client.load_system_host_keys()
@@ -27,3 +28,18 @@ def sftpRemote(server,username,sshkey,localpath,remotepath,logfile):
             return False
     except Exception as e:
         logfile.write('%s -- Exception: %s \n' % (datetime.now(),e))
+
+
+def scpTransfer(hostname,username,sshkey,localpath,remotepath,logfile):
+    try:
+        c = Connection(host = hostname,
+                    user = username,
+                    connect_kwargs = {"key_filename": sshkey},
+		    connect_timeout = 5)
+        result = c.put(localpath,remotepath)
+        c.close()
+        return True
+    except Exception as e:
+	c.close()
+        logfile.write('%s -- Exception: %s \n' % (datetime.now(),e))
+        return False
