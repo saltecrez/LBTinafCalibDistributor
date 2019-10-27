@@ -40,6 +40,5 @@ def scpTransfer(hostname,username,sshkey,localpath,remotepath,logfile):
         c.close()
         return True
     except Exception as e:
-	c.close()
         logfile.write('%s -- Exception: %s \n' % (datetime.now(),e))
         return False
