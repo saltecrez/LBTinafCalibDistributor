@@ -68,7 +68,6 @@ for i in cnf['destinations']:
 		    logfile.write('%s -- MySQLdb.Error: %s \n' % (datetime.now(),e))
 
 		if not referenceDB:		
-                    print label,x[0],mode, "not in reference DB"
                     if mode == 'scp':
                         returncode = scpTransfer(host,user,cnf['priv_sshkey'],localpath,remotepath,logfile) 
 		    elif mode == 'sftp':
@@ -82,7 +81,6 @@ for i in cnf['destinations']:
                     if len(referenceDB) < int(instr_multiplic):
 
                         if ((cksmDB != cksm_storage) or (cksmDB == cksm_storage and label != destDB)):		
-			    print label,x[0],mode,"already in reference DB"
 		            if mode == 'scp':
 			        returncode = scpTransfer(host,user,cnf['priv_sshkey'],localpath,remotepath,logfile) 
 			    elif mode == 'sftp':
