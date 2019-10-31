@@ -44,6 +44,15 @@
          "user": "lbtsync",
          "label": "MI",
 	 "mode": "scp"
+      },
+      {
+         "query": "SELECT file_name,file_version,instrument,propid,piname,partner,date_obs,object FROM mods WHERE date_obs >= %s and imagetyp != 'OBJECT';",
+         "table": "mods",
+         "dest": "/data1/datatest/done_2nd/",
+         "host": "lsc.oa-roma.inaf.it",
+         "user": "datatest",
+         "label": "RM",
+         "mode": "sftp"
       }
    ]
 }
