@@ -5,6 +5,11 @@ __email__ = "elisa.londero@inaf.it"
 __date__ = "August 2019"
 
 
+'''
+    Function md5Checksum calculates the checksum of the
+    file given in input.
+'''
+
 import hashlib
 from datetime import datetime
 

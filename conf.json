@@ -5,54 +5,62 @@
    "db_user": "archa",
    "db_schema": "metadata",
    "db_schema_check": "inaf_distributor",
-   "db_table_check": "dateCalibCheck",
+   "db_table_check": "dateCalibCheckTEST",
    "priv_sshkey": "/home/controls/.ssh/old_inaf_keys/id_rsa",
-   "instr_mult": "2",
-   "destinations": [
+   "instruments": [
       {
          "query": "SELECT file_name,file_version,instrument,propid,piname,partner,date_obs,object FROM luci WHERE date_obs >= %s and obstype='CALIBRATION' or obstype='DARK';",
          "table": "luci",
-         "dest": "LUCI/",
-         "host": "titan.lambrate.inaf.it",
-         "user": "lbtsync",
-         "label": "MI",
-	 "mode": "scp"
-      },
-      {
-         "query": "SELECT file_name,file_version,instrument,propid,piname,partner,date_obs,object FROM luci WHERE date_obs >= %s and obstype='CALIBRATION' or obstype='DARK';",
-         "table": "luci",
-         "dest": "/data1/datatest/done_2nd/",
-         "host": "lsc.oa-roma.inaf.it",
-         "user": "datatest",
-         "label": "RM",
-	 "mode": "sftp"
+         "destination": [
+                 {
+                         "host": "titan.lambrate.inaf.it",
+                         "user": "lbtsync",
+                         "fold": "LUCI/",
+                         "label": "MI",
+                         "mode": "scp"
+                 },
+                 {
+                         "host": "lsc.oa-roma.inaf.it",
+                         "user": "datatest",
+                         "fold": "/data1/datatest/done_2nd/",
+                         "label": "RM",
+                         "mode": "sftp"
+                 }
+         ]
       },
       {
          "query": "SELECT file_name,file_version,instrument,propid,piname,partner,date_obs,object FROM lbc WHERE date_obs >= %s and obs_type != 'object';",
          "table": "lbc",
-         "dest": "/data1/datatest/done_2nd/",
-         "host": "lsc.oa-roma.inaf.it",
-         "user": "datatest",
-         "label": "RM",
-	 "mode": "sftp"
+         "destination": [
+                 {
+                         "host": "lsc.oa-roma.inaf.it",
+                         "user": "datatest",
+                         "fold": "/data1/datatest/done_2nd/",
+                         "label": "RM",
+                         "mode": "sftp"
+                 }
+         ]
       },
       {
          "query": "SELECT file_name,file_version,instrument,propid,piname,partner,date_obs,object FROM mods WHERE date_obs >= %s and imagetyp != 'OBJECT';",
          "table": "mods",
-         "dest": "MODS/",
-         "host": "titan.lambrate.inaf.it",
-         "user": "lbtsync",
-         "label": "MI",
-	 "mode": "scp"
-      },
-      {
-         "query": "SELECT file_name,file_version,instrument,propid,piname,partner,date_obs,object FROM mods WHERE date_obs >= %s and imagetyp != 'OBJECT';",
-         "table": "mods",
-         "dest": "/data1/datatest/done_2nd/",
-         "host": "lsc.oa-roma.inaf.it",
-         "user": "datatest",
-         "label": "RM",
-         "mode": "sftp"
+         "destination": [
+                 {
+                         "host": "titan.lambrate.inaf.it",
+                         "user": "lbtsync",
+                         "fold": "MODS/",
+                         "label": "MI",
+                         "mode": "scp"
+                 },
+                 {
+                         "host": "lsc.oa-roma.inaf.it",
+                         "user": "datatest",
+                         "fold": "/data1/datatest/done_2nd/",
+                         "label": "RM",
+                         "mode": "sftp"
+                 }
+         ]
       }
    ]
 }
+

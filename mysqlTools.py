@@ -5,30 +5,34 @@ __email__ = "elisa.londero@inaf.it"
 __date__ = "September 2019"
 
 
-import MySQLdb
+import pymysql
 from datetime import datetime
 
 
 def mysqlConnection(host,user,password,schema,logfile):
     try:
-        db = MySQLdb.connect(host,user,password,schema)
+        db = pymysql.connect(host,user,password,schema)
         cur = db.cursor()
-    	return cur, db
-    except MySQLdb.Error, e:
-        logfile.write('%s -- MySQLdb.Error: %s \n' % (datetime.now(),e))
+        return cur, db
+    except pymysql.Error as e:
+        logfile.write('%s -- pymysql.Error: %s \n' % (datetime.now(),e))
 
 
 def mysqlInsert(schema,table,cur,db,filename,filepath,instrument,propid,piname,partner,date_obs,object,destination,cksm_storage,logfile):
-    query = "INSERT INTO " + schema + "." + table + "(filename,filepath,instrument,propid,piname,partner,date_obs,object,destination,checksum) VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s);"
+    query = "INSERT INTO " + schema + "." + table + \
+            "(filename,filepath,instrument,propid,piname,partner,date_obs,object,destination,checksum)" + \
+            "VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s);"
     try:
-        cur.execute(query,[filename,filepath,instrument,propid,piname,partner,date_obs,object,destination,cksm_storage])
+        cur.execute(query,[filename,filepath,instrument,propid,piname, \
+                           partner,date_obs,object,destination,cksm_storage])
         db.commit()
-    except MySQLdb.Error, e:
-        logfile.write('%s -- MySQLdb.Error: %s \n' % (datetime.now(),e))
+    except pymysql.Error as e:
+        logfile.write('%s -- pymysql.Error: %s \n' % (datetime.now(),e))
 
 
 def storagePathConstructor(cur,file_version,dbtable,filename,logfile):
-    sql_query = 'select storage_path, file_path from ' + dbtable + ' where file_name=%s and file_version=%s;'
+    sql_query = "select storage_path, file_path from " + dbtable + \
+                " where file_name=%s and file_version=%s;"
     try:
         cur.execute(sql_query,[filename,file_version])
         result_query = cur.fetchall()
@@ -36,5 +40,5 @@ def storagePathConstructor(cur,file_version,dbtable,filename,logfile):
         file_path = result_query[0][1]
         full_path = storage_path + file_path + '/' + str(file_version) + '/'
         return full_path
-    except MySQLdb.Error, e:
-        logfile.write('%s -- MySQLdb.Error: %s \n' % (datetime.now(),e))
+    except pymysql.Error as e:
+        logfile.write('%s -- pymysql.Error: %s \n' % (datetime.now(),e))

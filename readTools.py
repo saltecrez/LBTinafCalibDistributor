@@ -5,6 +5,11 @@ __email__ = "elisa.londero@inaf.it"
 __date__ = "June 2018"
 
 
+'''
+   Function readJson is used to read the json configuration file.
+   Function readCSV is used to read a csv file.
+'''
+
 import json
 import csv
 from datetime import datetime

@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 __author__ = "Elisa Londero"
 __email__ = "elisa.londero@inaf.it"
@@ -6,16 +6,17 @@ __date__ = "September 2019"
 
 
 '''
-   This script sorts out the calibration files based on the DATE 
-   contained in the schedules and distributes them towards the 
-   required destinations.
-   Usage: python2.7 calibDistributor.py 
+   This script sorts out the calibration files based on the DATE
+   contained in the input file and distributes them towards a
+   number of destinations.
+   Usage: python calibDistributor.py
+   Requires: python3
 '''
 
 
 import sys
 import os
-import MySQLdb
+import pymysql
 from astropy.io import fits
 from singleNight import singleNight
 from md5Checksum import md5Checksum
@@ -26,66 +27,75 @@ from mysqlTools import mysqlConnection,mysqlInsert,storagePathConstructor
 
 
 CWD = os.path.dirname(os.path.abspath(sys.argv[0]))
-
 logfile = open(CWD + '/' + "logfile.txt",'a')
-
 cnf = readJson('conf.json',CWD,logfile)
-
 datelist = readCSV(cnf['dates_file'],logfile)
+sshkey = cnf['priv_sshkey']
+db_check = cnf['db_schema_check']
+tbl_check = cnf['db_table_check']
 
-instr_multiplic = cnf['instr_mult']
+db1 = pymysql.connect(cnf['db_host'],cnf['db_user'],cnf['db_pwd'],cnf['db_schema'])
+cur1 = db1.cursor()
+db2 = pymysql.connect(cnf['db_host'],cnf['db_user'],cnf['db_pwd'],cnf['db_schema_check'])
+cur2 = db2.cursor()
 
-cur1, db1 = mysqlConnection(cnf['db_host'],cnf['db_user'],cnf['db_pwd'],cnf['db_schema'],logfile)
-cur2, db2 = mysqlConnection(cnf['db_host'],cnf['db_user'],cnf['db_pwd'],cnf['db_schema_check'],logfile)
+cksm_query = "SELECT checksum,destination FROM " + tbl_check + " WHERE filename=%s;"
 
-cksm_query = "SELECT checksum,destination FROM " + cnf['db_table_check'] + " WHERE filename=%s;"
-
-for i in cnf['destinations']:
+for i in cnf['instruments']:
     query = i.get('query'); table = i.get('table')
-    dest  = i.get('dest');  host  = i.get('host')
-    user  = i.get('user');  label = i.get('label')
-    mode = i.get('mode')
 
     try:
-	cur1.execute(query, [datelist[0][0]])
-    except MySQLdb.Error, e:
-	logfile.write('%s -- MySQLdb.Error: %s \n' % (datetime.now(),e))
+        cur1.execute(query, [datelist[0][0]])
+    except pymysql.Error as e:
+        logfile.write('%s -- MySQLdb.Error: %s \n' % (datetime.now(),e))
 
     for x in cur1.fetchall():
-	remotepath = dest + x[0]
-	for j in datelist:
-	    date_parser = singleNight(j[0],x[6],logfile)
-	    if (date_parser):
-		version = x[1]
-		storage_path = storagePathConstructor(cur1,version,table,x[0],logfile)
-		localpath = storage_path + x[0]
-		cksm_storage = md5Checksum(localpath,logfile)
+        for j in datelist:
+            date_parser = singleNight(j[0],x[6],logfile)
+            if (date_parser):
+                version = x[1]
+                storage_path = storagePathConstructor(cur1,version,table,x[0],logfile)
+                localpath = storage_path + x[0]
+                cksm_storage = md5Checksum(localpath,logfile)
 
-		try:
-		    cur2.execute(cksm_query, [x[0]])
-		    referenceDB = cur2.fetchall()
-		except MySQLdb.Error, e:
-		    logfile.write('%s -- MySQLdb.Error: %s \n' % (datetime.now(),e))
+                try:
+                    cur2.execute(cksm_query, [x[0]])
+                    referenceDB = cur2.fetchall()
+                except pymysql.Error as e:
+                    logfile.write('%s -- MySQLdb.Error: %s \n' % (datetime.now(),e))
 
-		if not referenceDB:		
-                    if mode == 'scp':
-                        returncode = scpTransfer(host,user,cnf['priv_sshkey'],localpath,remotepath,logfile) 
-		    elif mode == 'sftp':
-			returncode = sftpTransfer(host,user,cnf['priv_sshkey'],localpath,remotepath,logfile)
-		    if (returncode):
-                        mysqlInsert(cnf['db_schema_check'],cnf['db_table_check'],cur2,db2,x[0],localpath,x[2],x[3],x[4],x[5],x[6],x[7],label,cksm_storage,logfile)
+                cksmDB_list = []
+                destDB_list = []
 
-		if (referenceDB):
-                    cksmDB = referenceDB[0][0]; destDB = referenceDB[0][1];
+                for k in i.get('destination'):
+                        host = k.get('host'); user = k.get('user')
+                        label = k.get('label'); mode = k.get('mode')
+                        fold = k.get('fold')
+                        remotepath = fold + x[0]
 
-                    if len(referenceDB) < int(instr_multiplic):
+			# this loops over the destinations for each instrument and transfers new files not found yet in DB
+                        if not referenceDB:
+                            if mode == 'scp':
+                                returncode = scpTransfer(host,user,sshkey,localpath,remotepath,logfile)
+                            elif mode == 'sftp':
+                                returncode = sftpTransfer(host,user,sshkey,localpath,remotepath,logfile)
+                            if (returncode):
+                                mysqlInsert(db_check,tbl_check,cur2,db2,x[0],localpath,x[2],x[3],x[4],x[5],x[6],x[7],label,cksm_storage,logfile)
 
-                        if ((cksmDB != cksm_storage) or (cksmDB == cksm_storage and label != destDB)):		
-		            if mode == 'scp':
-			        returncode = scpTransfer(host,user,cnf['priv_sshkey'],localpath,remotepath,logfile) 
-			    elif mode == 'sftp':
-			        returncode = sftpTransfer(host,user,cnf['priv_sshkey'],localpath,remotepath,logfile)
-			    if (returncode):
-			        mysqlInsert(cnf['db_schema_check'],cnf['db_table_check'],cur2,db2,x[0],localpath,x[2],x[3],x[4],x[5],x[6],x[7],label,cksm_storage,logfile)
+                        # this part takes care of new versions of files and files not transferred previously because of transfer issues
+                        elif (referenceDB):
+                            for l in range(len(referenceDB)):
+                                cksmDB_list.append(referenceDB[l][0])
+                                destDB_list.append(referenceDB[l][1])
 
-logfile.close()			
+                            if ((cksm_storage in cksmDB_list and label not in destDB_list) or (cksm_storage not in cksmDB_list)):
+                                if mode == 'scp':
+                                    returncode = scpTransfer(host,user,sshkey,localpath,remotepath,logfile)
+                                elif mode == 'sftp':
+                                    returncode = sftpTransfer(host,user,sshkey,localpath,remotepath,logfile)
+                                if (returncode):
+                                    mysqlInsert(db_check,tbl_check,cur2,db2,x[0],localpath,x[2],x[3],x[4],x[5],x[6],x[7],label,cksm_storage,logfile)
+
+cur1.close()
+cur2.close()
+logfile.close()
