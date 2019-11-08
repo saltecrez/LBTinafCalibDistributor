@@ -13,7 +13,7 @@
 
 - **Configuration parameters**:
 
-- "dates_file": file containing one column with the dates in the form year-month-dayThour:min:sec.f (eg 2019-09-26T12:00:00.000) 
+    - "dates_file": file containing one column with the dates in the form year-month-dayThour:min:sec.f (eg 2019-09-26T12:00:00.000) 
     - "db_host": ip address of the host containing the local database
     - "db_pwd": password of the local database for the user specified in db_user
     - "db_user": user of the database who can access the schema specified in db_schema
