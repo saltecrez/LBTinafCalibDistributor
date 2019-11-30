@@ -46,8 +46,10 @@ def sftpTransfer(server,username,sshkey,localpath,remotepath,logfile):
 def scpTransfer(hostname,username,sshkey,localpath,remotepath,logfile):
     try:
         cmd = "scp -i " + sshkey + " " + localpath + " " + username + "@" + hostname + ":" + remotepath
-        subprocess.call(cmd,shell=True)
-        return True
+        exit_code = subprocess.call(cmd,shell=True)
+        if exit_code == 0:
+            return True
+        else:
+            return False
     except subprocess.CalledProcessError as e:
         logfile.write('%s -- subprocess.CalledProcessError: %s \n' % (datetime.now(),e))
-        return False
