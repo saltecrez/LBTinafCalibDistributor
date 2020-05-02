@@ -1,9 +1,10 @@
 {
    "dates_file": "2019B_INAF_nights.txt",
    "db_host": "localhost",
-   "db_pwd": "Archa123",
+   "db_pwd": "Archa123.",
    "db_user": "archa",
-   "db_schema": "metadata",
+   "db_name": "metadata",
+   "db_port": "3306",
    "db_schema_check": "inaf_distributor",
    "db_table_check": "dateCalibCheckTEST",
    "priv_sshkey": "/home/controls/.ssh/old_inaf_keys/id_rsa",
