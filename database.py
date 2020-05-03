@@ -4,6 +4,7 @@ __author__ = "Elisa Londero"
 __email__ = "elisa.londero@inaf.it"
 __date__ = "September 2019"
 
+import os
 import pymysql
 from sqlalchemy import Column
 from sqlalchemy import String
@@ -59,15 +60,17 @@ class MySQLDatabase(object):
             log.error("{0}{1}".format(msg,e))
             return False
 
-class LuciTable(Base):
-    __tablename__ = 'luc'
+class LUCITable(Base):
+    __tablename__ = 'luci'
 
     id = Column(Integer, primary_key=True)
     file_name = Column(String(255))
     file_version = Column(Integer)
-    instrume = Column(String(255))
+    storage_path = Column(String(255))
+    file_path = Column(String(255))
+    instrument = Column(String(255))
     propid = Column(String(255))
-    pi_name = Column(String(255))
+    piname = Column(String(255))
     partner = Column(String(255))
     date_obs = Column(String(255))
     object = Column(String(255))
@@ -75,22 +78,26 @@ class LuciTable(Base):
     def __init__(self, file_name):
         self.file_name = file_name
         self.file_version = file_version
-        self.instrument = instrume
+        self.storage_path = storage_path
+        self.file_path = file_path
+        self.instrument = instrument
         self.propid = propid
-        self.pi_name = pi_name
+        self.piname = piname
         self.partner = partner
         self.date_obs = date_obs
         self.object = object
 
-class ModsTable(Base):
-    __tablename__ = 'mod'
+class MODSTable(Base):
+    __tablename__ = 'mods'
 
     id = Column(Integer, primary_key=True)
     file_name = Column(String(255))
     file_version = Column(Integer)
-    instrume = Column(String(255))
+    storage_path = Column(String(255))
+    file_path = Column(String(255))
+    instrument = Column(String(255))
     propid = Column(String(255))
-    pi_name = Column(String(255))
+    piname = Column(String(255))
     partner = Column(String(255))
     date_obs = Column(String(255))
     object = Column(String(255))
@@ -98,22 +105,26 @@ class ModsTable(Base):
     def __init__(self, file_name):
         self.file_name = file_name
         self.file_version = file_version
-        self.instrument = instrume
+        self.storage_path = storage_path
+        self.file_path = file_path
+        self.instrument = instrument
         self.propid = propid
-        self.pi_name = pi_name
+        self.piname = piname
         self.partner = partner
         self.date_obs = date_obs
         self.object = object
 
-class LbcTable(Base):
+class LBCTable(Base):
     __tablename__ = 'lbc'
 
     id = Column(Integer, primary_key=True)
     file_name = Column(String(255))
     file_version = Column(Integer)
-    instrume = Column(String(255))
+    storage_path = Column(String(255))
+    file_path = Column(String(255))
+    instrument = Column(String(255))
     propid = Column(String(255))
-    pi_name = Column(String(255))
+    piname = Column(String(255))
     partner = Column(String(255))
     date_obs = Column(String(255))
     object = Column(String(255))
@@ -121,9 +132,11 @@ class LbcTable(Base):
     def __init__(self, file_name):
         self.file_name = file_name
         self.file_version = file_version
-        self.instrument = instrume
+        self.storage_path = storage_path
+        self.file_path = file_path
+        self.instrument = instrument
         self.propid = propid
-        self.pi_name = pi_name
+        self.piname = piname
         self.partner = partner
         self.date_obs = date_obs
         self.object = object
@@ -146,3 +159,24 @@ class Queries(object):
         except Exception as e:
             msg = "Match filename string excep - Queries.match_filename -- "
             log.error("{0}{1}".format(msg,e))
+
+class Queries2(object):
+    def __init__(self, session, table_object, string1, string2):
+        self.session = session
+        self.table_object = table_object
+        self.string1 = string1
+        self.string2 = string2
+
+    def get_storage_path(self):
+        try:
+            rows = self.session.query(self.table_object)
+            flt = rows.filter(self.table_object.file_name == self.string1, self.table_object.file_version == self.string2)
+            for j in flt:
+                strip_path = j.storage_path.rstrip('/')
+                file_path = os.path.join(j.file_path,str(j.file_version),j.file_name)
+                storage_path = strip_path + file_path 
+            return storage_path
+        except Exception as e:
+            msg = "Find storage path string excep - Queries2.get_storage_path -- "
+            log.error("{0}{1}".format(msg,e))
+

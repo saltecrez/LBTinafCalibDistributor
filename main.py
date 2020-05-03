@@ -9,8 +9,9 @@ from utilities import VerifyLinux
 from utilities import LoggingClass
 
 from database import MySQLDatabase
-from database import LuciTable
+from database import LUCITable
 from database import Queries
+from database import Queries2
 
 
 log = LoggingClass('',True).get_logger()
@@ -29,11 +30,16 @@ def main():
         db      = MySQLDatabase(dbuser, dbpwd, dbname, dbhost, dbport)
         Session = db.mysql_session()
 
-        filename = 'pippi.txt'
+        filename = 'luci.20140904.0002.fits.gz'
+        file_version = '0'
 
-        rows = Queries(Session, LuciTable, filename).match_filename()
-        if not rows:
-            print(filename)
+        #rows = Queries(Session, LUCITable, filename).match_filename()
+        #if not rows:
+        #    print(filename)
+
+        rows2 = Queries2(Session, LUCITable, filename, file_version).get_storage_path()
+        #if not rows2:
+        #    print(filename, file_version)
 
     except Exception as e:
         msg = "Main exception - main() -- "
