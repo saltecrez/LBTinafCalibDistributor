@@ -6,6 +6,7 @@ __date__ = "September 2019"
 
 import os
 import pymysql
+from sqlalchemy import or_
 from sqlalchemy import Column
 from sqlalchemy import String
 from sqlalchemy import Integer
@@ -73,6 +74,7 @@ class LUCITable(Base):
     piname = Column(String(255))
     partner = Column(String(255))
     date_obs = Column(String(255))
+    obstype = Column(String(255))
     object = Column(String(255))
 
     def __init__(self, file_name):
@@ -85,6 +87,7 @@ class LUCITable(Base):
         self.piname = piname
         self.partner = partner
         self.date_obs = date_obs
+        self.obstype = obstype
         self.object = object
 
 class MODSTable(Base):
@@ -100,6 +103,7 @@ class MODSTable(Base):
     piname = Column(String(255))
     partner = Column(String(255))
     date_obs = Column(String(255))
+    imagetyp = Column(String(255))
     object = Column(String(255))
 
     def __init__(self, file_name):
@@ -112,6 +116,7 @@ class MODSTable(Base):
         self.piname = piname
         self.partner = partner
         self.date_obs = date_obs
+        self.imagetyp = imagetyp
         self.object = object
 
 class LBCTable(Base):
@@ -127,6 +132,7 @@ class LBCTable(Base):
     piname = Column(String(255))
     partner = Column(String(255))
     date_obs = Column(String(255))
+    obs_type = Column(String(255))
     object = Column(String(255))
 
     def __init__(self, file_name):
@@ -139,6 +145,7 @@ class LBCTable(Base):
         self.piname = piname
         self.partner = partner
         self.date_obs = date_obs
+        self.obs_type = obs_type
         self.object = object
 
 class Queries(object):
@@ -178,5 +185,41 @@ class Queries2(object):
             return storage_path
         except Exception as e:
             msg = "Find storage path string excep - Queries2.get_storage_path -- "
+            log.error("{0}{1}".format(msg,e))
+
+class Queries3(object):
+    def __init__(self, session, table_object, string):
+        self.session = session
+        self.table_object = table_object
+        self.string = string
+
+    def luci_query(self):
+        try:
+            rows = self.session.query(self.table_object)
+            flt = rows.filter(self.table_object.date_obs >= self.string, or_(self.table_object.obstype == 'CALIBRATION', self.table_object.obstype == 'DARK'))
+            for j in flt:
+                print(j.file_name, j.file_version, j.instrument, j.propid, j.piname, j.partner, j.date_obs, j.object)
+        except Exception as e:
+            msg = "LUCI query excep - Queries3.luci_query -- "
+            log.error("{0}{1}".format(msg,e))
+
+    def mods_query(self):
+        try:
+            rows = self.session.query(self.table_object)
+            flt = rows.filter(self.table_object.date_obs >= self.string, self.table_object.imagetyp != 'OBJECT')
+            for j in flt:
+                print(j.file_name, j.file_version, j.instrument, j.propid, j.piname, j.partner, j.date_obs, j.object)
+        except Exception as e:
+            msg = "MODS query excep - Queries3.mods_query -- "
+            log.error("{0}{1}".format(msg,e))
+
+    def lbc_query(self):
+        try:
+            rows = self.session.query(self.table_object)
+            flt = rows.filter(self.table_object.date_obs >= self.string, self.table_object.obs_type != 'OBJECT')
+            for j in flt:
+                print(j.file_name, j.file_version, j.instrument, j.propid, j.piname, j.partner, j.date_obs, j.object)
+        except Exception as e:
+            msg = "LBC query excep - Queries3.lbc_query -- "
             log.error("{0}{1}".format(msg,e))
 
