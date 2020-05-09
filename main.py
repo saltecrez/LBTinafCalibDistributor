@@ -12,9 +12,11 @@ from database import MySQLDatabase
 from database import LUCITable
 from database import MODSTable
 from database import LBCTable
+from database import InsertTable
 from database import Queries
 from database import Queries2
 from database import Queries3
+from database import Queries4
 
 
 log = LoggingClass('',True).get_logger()
@@ -47,7 +49,8 @@ def main():
 
         #rows3 = Queries3(Session, LUCITable, date_obs).luci_query()
         #rows3 = Queries3(Session, MODSTable, date_obs).mods_query()
-        rows3 = Queries3(Session, LBCTable, date_obs).lbc_query()
+        insert_list = ['pippo.txt', '/tmp/pippo.txt','','','','','','','','','']
+        rows4 = Queries4(Session, InsertTable, insert_list).insert_query()
 
     except Exception as e:
         msg = "Main exception - main() -- "

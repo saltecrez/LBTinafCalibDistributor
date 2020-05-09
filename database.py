@@ -11,6 +11,7 @@ from sqlalchemy import Column
 from sqlalchemy import String
 from sqlalchemy import Integer
 from utilities import LoggingClass
+from sqlalchemy.sql import insert
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
@@ -148,6 +149,35 @@ class LBCTable(Base):
         self.obs_type = obs_type
         self.object = object
 
+class InsertTable(Base):
+    __tablename__ = 'calib_test'
+
+    id = Column(Integer, primary_key=True)
+    filename = Column(String(255))
+    filepath = Column(String(255))
+    instrument = Column(String(255))
+    propid = Column(String(255))
+    piname = Column(String(255))
+    partner = Column(String(255))
+    date_obs = Column(String(255))
+    object = Column(String(255))
+    destination = Column(String(255))
+    checksum = Column(String(255))
+    transferDate = Column(String(255))
+
+    def __init__(self, file_name):
+        self.filename = filename
+        self.filepath = filepath
+        self.instrument = instrument
+        self.propid = propid
+        self.piname = piname
+        self.partner = partner
+        self.date_obs = date_obs
+        self.object = object
+        self.destination = destination
+        self.checksum = checksum
+        self.transferDate = transferDate
+
 class Queries(object):
     def __init__(self, session, table_object, string):
         self.session = session
@@ -177,7 +207,8 @@ class Queries2(object):
     def get_storage_path(self):
         try:
             rows = self.session.query(self.table_object)
-            flt = rows.filter(self.table_object.file_name == self.string1, self.table_object.file_version == self.string2)
+            flt = rows.filter(self.table_object.file_name == self.string1, 
+                              self.table_object.file_version == self.string2)
             for j in flt:
                 strip_path = j.storage_path.rstrip('/')
                 file_path = os.path.join(j.file_path,str(j.file_version),j.file_name)
@@ -196,7 +227,9 @@ class Queries3(object):
     def luci_query(self):
         try:
             rows = self.session.query(self.table_object)
-            flt = rows.filter(self.table_object.date_obs >= self.string, or_(self.table_object.obstype == 'CALIBRATION', self.table_object.obstype == 'DARK'))
+            flt = rows.filter(self.table_object.date_obs >= self.string,
+                              or_(self.table_object.obstype == 'CALIBRATION',
+                                  self.table_object.obstype == 'DARK'))
             for j in flt:
                 print(j.file_name, j.file_version, j.instrument, j.propid, j.piname, j.partner, j.date_obs, j.object)
         except Exception as e:
@@ -206,7 +239,8 @@ class Queries3(object):
     def mods_query(self):
         try:
             rows = self.session.query(self.table_object)
-            flt = rows.filter(self.table_object.date_obs >= self.string, self.table_object.imagetyp != 'OBJECT')
+            flt = rows.filter(self.table_object.date_obs >= self.string,
+                              self.table_object.imagetyp != 'OBJECT')
             for j in flt:
                 print(j.file_name, j.file_version, j.instrument, j.propid, j.piname, j.partner, j.date_obs, j.object)
         except Exception as e:
@@ -216,10 +250,35 @@ class Queries3(object):
     def lbc_query(self):
         try:
             rows = self.session.query(self.table_object)
-            flt = rows.filter(self.table_object.date_obs >= self.string, self.table_object.obs_type != 'OBJECT')
+            flt = rows.filter(self.table_object.date_obs >= self.string,
+                              self.table_object.obs_type != 'OBJECT')
             for j in flt:
                 print(j.file_name, j.file_version, j.instrument, j.propid, j.piname, j.partner, j.date_obs, j.object)
         except Exception as e:
             msg = "LBC query excep - Queries3.lbc_query -- "
             log.error("{0}{1}".format(msg,e))
 
+class Queries4(object):
+    def __init__(self, session, table_object, insert_list):
+        self.session = session
+        self.table_object = table_object
+        self.i_l = insert_list
+
+    def insert_query(self):
+        try:
+            i = insert(self.table_object)
+            i = i.values({self.table_object.filename: self.i_l[0],
+                          self.table_object.filepath: self.i_l[1],
+                          self.table_object.instrument: self.i_l[2],
+                          self.table_object.propid: self.i_l[3],
+                          self.table_object.piname: self.i_l[4],
+                          self.table_object.partner: self.i_l[5],
+                          self.table_object.date_obs: self.i_l[6],
+                          self.table_object.object: self.i_l[7],
+                          self.table_object.destination: self.i_l[8],
+                          self.table_object.checksum: self.i_l[9],
+                          self.table_object.transferDate: self.i_l[10]})
+            self.session.execute(i)
+        except Exception as e:
+            msg = "Insert query excep - Queries4.insert_query -- "
+            log.error("{0}{1}".format(msg,e))
