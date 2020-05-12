@@ -83,12 +83,22 @@ class ReadJson(object):
             log.error("{0}".format(e))
             exit(1)
 
-    def get_db_name(self):
+    def get_db_name_read(self):
         try:
-            db_name = self._create_dictionary().get("db_name")
-            if db_name is None:
-                raise MissingConfParameter('db_name')
-            return db_name
+            db_name_read = self._create_dictionary().get("db_name_read")
+            if db_name_read is None:
+                raise MissingConfParameter('db_name_read')
+            return db_name_read
+        except MissingConfParameter as e:
+            log.error("{0}".format(e))
+            exit(1)
+
+    def get_db_name_write(self):
+        try:
+            db_name_write = self._create_dictionary().get("db_name_write")
+            if db_name_write is None:
+                raise MissingConfParameter('db_name_write')
+            return db_name_write
         except MissingConfParameter as e:
             log.error("{0}".format(e))
             exit(1)
@@ -108,6 +118,16 @@ class ReadJson(object):
             if p_key is None:
                 raise MissingConfParameter('priv_key')
             return p_key
+        except MissingConfParameter as e:
+            log.error("{0}".format(e))
+            exit(1)
+
+    def get_inaf_nights(self):
+        try:
+            nights = self._create_dictionary().get("dates_file")
+            if nights is None:
+                raise MissingConfParameter('dates_file')
+            return nights
         except MissingConfParameter as e:
             log.error("{0}".format(e))
             exit(1)

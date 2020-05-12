@@ -150,7 +150,7 @@ class LBCTable(Base):
         self.object = object
 
 class InsertTable(Base):
-    __tablename__ = 'calib_test'
+    __tablename__ = 'dateCalibCheckTEST'
 
     id = Column(Integer, primary_key=True)
     filename = Column(String(255))
@@ -178,7 +178,7 @@ class InsertTable(Base):
         self.checksum = checksum
         self.transferDate = transferDate
 
-class Queries(object):
+class MatchFilenameQuery(object):
     def __init__(self, session, table_object, string):
         self.session = session
         self.table_object = table_object
@@ -194,10 +194,10 @@ class Queries(object):
                 else:
                     return False
         except Exception as e:
-            msg = "Match filename string excep - Queries.match_filename -- "
+            msg = "Match filename string excep - MatchFilenameQuery.match_filename -- "
             log.error("{0}{1}".format(msg,e))
 
-class Queries2(object):
+class StoragePathQuery(object):
     def __init__(self, session, table_object, string1, string2):
         self.session = session
         self.table_object = table_object
@@ -215,47 +215,50 @@ class Queries2(object):
                 storage_path = strip_path + file_path 
             return storage_path
         except Exception as e:
-            msg = "Find storage path string excep - Queries2.get_storage_path -- "
+            msg = "Find storage path string excep - StoragePathQuery.get_storage_path -- "
             log.error("{0}{1}".format(msg,e))
 
-class Queries3(object):
-    def __init__(self, session, table_object, string):
+class CalibrationSelectionQueries(object):
+    def __init__(self, session, table_object, date_string):
         self.session = session
         self.table_object = table_object
-        self.string = string
+        self.date_string = date_string
 
     def luci_query(self):
         try:
             rows = self.session.query(self.table_object)
-            flt = rows.filter(self.table_object.date_obs >= self.string,
+            flt = rows.filter(self.table_object.date_obs >= self.date_string,
                               or_(self.table_object.obstype == 'CALIBRATION',
                                   self.table_object.obstype == 'DARK'))
-            for j in flt:
-                print(j.file_name, j.file_version, j.instrument, j.propid, j.piname, j.partner, j.date_obs, j.object)
+            return flt
+            #for j in flt:
+                #print(j.file_name,j.date_obs)
+                #return j.date_obs
+                #print(j.file_name, j.file_version, j.instrument, j.propid, j.piname, j.partner, j.date_obs, j.object)
         except Exception as e:
-            msg = "LUCI query excep - Queries3.luci_query -- "
+            msg = "LUCI query excep - CalibrationSelectionQueries.luci_query -- "
             log.error("{0}{1}".format(msg,e))
 
     def mods_query(self):
         try:
             rows = self.session.query(self.table_object)
-            flt = rows.filter(self.table_object.date_obs >= self.string,
+            flt = rows.filter(self.table_object.date_obs >= self.date_string,
                               self.table_object.imagetyp != 'OBJECT')
             for j in flt:
                 print(j.file_name, j.file_version, j.instrument, j.propid, j.piname, j.partner, j.date_obs, j.object)
         except Exception as e:
-            msg = "MODS query excep - Queries3.mods_query -- "
+            msg = "MODS query excep - CalibrationSelectionQueries.mods_query -- "
             log.error("{0}{1}".format(msg,e))
 
     def lbc_query(self):
         try:
             rows = self.session.query(self.table_object)
-            flt = rows.filter(self.table_object.date_obs >= self.string,
+            flt = rows.filter(self.table_object.date_obs >= self.date_string,
                               self.table_object.obs_type != 'OBJECT')
             for j in flt:
                 print(j.file_name, j.file_version, j.instrument, j.propid, j.piname, j.partner, j.date_obs, j.object)
         except Exception as e:
-            msg = "LBC query excep - Queries3.lbc_query -- "
+            msg = "LBC query excep - CalibrationSelectionQueries.lbc_query -- "
             log.error("{0}{1}".format(msg,e))
 
 class Queries4(object):

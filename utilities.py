@@ -76,11 +76,11 @@ class SendEmail(object):
             server.sendmail(self.sender, [self.recipient], msg.as_string())
             server.quit()
 
-class ReadNigths(object):
+class ReadNights(object):
     def __init__(self, filename):
         self.filename = filename
 
-    def _get_nights_list(self):
+    def get_nights_list(self):
         try:
             filepath = '%s/%s' % (os.getcwd(), self.filename)
             stations_list = []
@@ -121,7 +121,6 @@ class md5Checksum(object):
         except Exception as e:
             msg = "Checksum calculation excep - md5Checksum.get_checksum_gz -- "
             log.error("{0}{1}".format(msg,e))
-
 
 class SingleNight(object):
     def __init__(self, input_date, dateobs):

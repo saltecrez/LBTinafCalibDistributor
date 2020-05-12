@@ -7,17 +7,22 @@ __date__ = "June 2018"
 from read_json import ReadJson
 from utilities import VerifyLinux
 from utilities import LoggingClass
+from utilities import ReadNights
+from utilities import SingleNight
 
 from database import MySQLDatabase
 from database import LUCITable
 from database import MODSTable
 from database import LBCTable
 from database import InsertTable
-from database import Queries
-from database import Queries2
-from database import Queries3
+from database import MatchFilenameQuery
+from database import StoragePathQuery
+from database import CalibrationSelectionQueries
 from database import Queries4
 
+# select all calib files from a datetime till today
+# select only the calib files from above that belong to inaf nights
+#
 
 log = LoggingClass('',True).get_logger()
 
@@ -28,29 +33,28 @@ def main():
 
         dbuser = rj.get_db_user()
         dbpwd  = rj.get_db_pwd()
-        dbname = rj.get_db_name()
         dbhost = rj.get_db_host()
         dbport = rj.get_db_port()
 
-        db      = MySQLDatabase(dbuser, dbpwd, dbname, dbhost, dbport)
-        Session = db.mysql_session()
+        dbname_nadir = rj.get_db_name_read()
+        dbname_write_record = rj.get_db_name_write()
 
-        filename = 'luci.20140904.0002.fits.gz'
-        file_version = '0'
-        date_obs = '2019-01-01%'
+        db_nadir = MySQLDatabase(dbuser, dbpwd, dbname_nadir, dbhost, dbport)
+        Session_nadir  = db_nadir.mysql_session()
 
-        #rows = Queries(Session, LUCITable, filename).match_filename()
-        #if not rows:
-        #    print(filename)
+        db_write_record = MySQLDatabase(dbuser, dbpwd, dbname_write_record, dbhost, dbport)
+        Session_write_record = db_write_record.mysql_session()
 
-        #rows2 = Queries2(Session, LUCITable, filename, file_version).get_storage_path()
-        #if not rows2:
-        #    print(filename, file_version)
+        nights_file = rj.get_inaf_nights()
+        inaf_nights = ReadNights(nights_file).get_nights_list()
+        first_night = inaf_nights[0]
 
-        #rows3 = Queries3(Session, LUCITable, date_obs).luci_query()
-        #rows3 = Queries3(Session, MODSTable, date_obs).mods_query()
-        insert_list = ['pippo.txt', '/tmp/pippo.txt','','','','','','','','','']
-        rows4 = Queries4(Session, InsertTable, insert_list).insert_query()
+        luci_calib_filter = CalibrationSelectionQueries(Session_nadir, LUCITable, first_night).luci_query()
+        for i in luci_calib_filter:
+            for j in inaf_nights:
+                tf = SingleNight(j,i.date_obs).get_single_night()
+                if tf:
+                    print(i.file_name,i.date_obs)
 
     except Exception as e:
         msg = "Main exception - main() -- "
