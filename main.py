@@ -47,14 +47,13 @@ def main():
 
         nights_file = rj.get_inaf_nights()
         inaf_nights = ReadNights(nights_file).get_nights_list()
-        first_night = inaf_nights[0]
 
-        luci_calib_filter = CalibrationSelectionQueries(Session_nadir, LUCITable, first_night).luci_query()
-        for i in luci_calib_filter:
-            for j in inaf_nights:
-                tf = SingleNight(j,i.date_obs).get_single_night()
-                if tf:
-                    print(i.file_name,i.date_obs)
+        start_dates_list, end_dates_list = SingleNight(inaf_nights).get_single_night()
+
+        for i in range(len(start_dates_list)):
+            luci_calib_filter = CalibrationSelectionQueries(Session_nadir, LUCITable, start_dates_list[i], end_dates_list[i]).luci_query()
+            for j in luci_calib_filter:
+                print(i,j.file_name,j.date_obs,j.obstype)
 
     except Exception as e:
         msg = "Main exception - main() -- "

@@ -122,29 +122,44 @@ class md5Checksum(object):
             msg = "Checksum calculation excep - md5Checksum.get_checksum_gz -- "
             log.error("{0}{1}".format(msg,e))
 
+#class SingleNight(object):
+#    def __init__(self, input_date, dateobs):
+#        self.input_date = input_date
+#        self.dateobs = dateobs
+#
+#    def get_single_night(self):
+#        '''
+#            This function decides if an observation date falls
+#            within a certain time range defining a single night.
+#            A single night includes 24 h, from the midday of the
+#            day given in input to the midday of the day after.
+#            Input dates format: year-month-dayThour:min:sec:msec
+#            (eg 2019-09-26T12:00:00.000)
+#        '''
+#        try:
+#            s_int = datetime.strptime(self.input_date, "%Y-%m-%dT%H:%M:%S.%f")
+#            e_int = s_int + timedelta(1)
+#            start = datetime.strftime(s_int, '%Y-%m-%dT%H:%M:%S.%f')
+#            end = datetime.strftime(e_int, '%Y-%m-%dT%H:%M:%S.%f')
+#            if end >= self.dateobs >= start:
+#                return True
+#            else:
+#                return False
+#        except Exception as e:
+#            msg = "Single night calculation excep - SingleNight.get_single_night -- "
+#            log.error("{0}{1}".format(msg,e))
+
 class SingleNight(object):
-    def __init__(self, input_date, dateobs):
-        self.input_date = input_date
-        self.dateobs = dateobs
+    def __init__(self, inaf_dates_list):
+        self.dates = inaf_dates_list
 
     def get_single_night(self):
-        '''
-            This function decides if an observation date falls
-            within a certain time range defining a single night.
-            A single night includes 24 h, from the midday of the
-            day given in input to the midday of the day after.
-            Input dates format: year-month-dayThour:min:sec:msec
-            (eg 2019-09-26T12:00:00.000)
-        '''
         try:
-            s_int = datetime.strptime(self.input_date, "%Y-%m-%dT%H:%M:%S.%f")
-            e_int = s_int + timedelta(1)
-            start = datetime.strftime(s_int, '%Y-%m-%dT%H:%M:%S.%f')
-            end = datetime.strftime(e_int, '%Y-%m-%dT%H:%M:%S.%f')
-            if end >= self.dateobs >= start:
-                return True
-            else:
-                return False
+            start_string = [s + 'T12:00:00.000' for s in self.dates]
+            start_date = [datetime.strptime(s, "%Y-%m-%dT%H:%M:%S.%f") for s in start_string]
+            end_date = [s + timedelta(1) for s in start_date]
+            end_string = [datetime.strftime(s, '%Y-%m-%dT%H:%M:%S.%f') for s in end_date]
+            return start_string, end_string
         except Exception as e:
             msg = "Single night calculation excep - SingleNight.get_single_night -- "
             log.error("{0}{1}".format(msg,e))

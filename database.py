@@ -219,17 +219,16 @@ class StoragePathQuery(object):
             log.error("{0}{1}".format(msg,e))
 
 class CalibrationSelectionQueries(object):
-    def __init__(self, session, table_object, date_string):
+    def __init__(self, session, table_object, date_start, date_end):
         self.session = session
         self.table_object = table_object
-        self.date_string = date_string
+        self.date_start = date_start
+        self.date_end = date_end
 
     def luci_query(self):
         try:
             rows = self.session.query(self.table_object)
-            flt = rows.filter(self.table_object.date_obs >= self.date_string,
-                              or_(self.table_object.obstype == 'CALIBRATION',
-                                  self.table_object.obstype == 'DARK'))
+            flt = rows.filter(self.table_object.date_obs >= self.date_start, self.table_object.date_obs <= self.date_end, or_(self.table_object.obstype == 'CALIBRATION', self.table_object.obstype == 'DARK'))
             return flt
             #for j in flt:
                 #print(j.file_name,j.date_obs)
